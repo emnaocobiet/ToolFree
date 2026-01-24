@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LC79 Minimal Local</title>
+    <title>LC79 Tools</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
         #bg-iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         #floating-box {
             position: absolute;
-            top: 20px;
+            top: 50px;
             left: 20px;
-            width: 140px;
-            height: 90px;
-            background: #fff;
+            width: 150px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.95);
             color: #000;
-            border-radius: 12px;
+            border-radius: 15px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -24,17 +24,23 @@
             cursor: move;
             user-select: none;
             z-index: 9999;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            font-family: Arial, sans-serif;
-            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            border: 2px solid #ffd700;
         }
 
-        .phien-hien-tai { font-size: 16px; margin-bottom: 5px; color: #333; }
-        .du-doan { font-size: 26px; text-transform: uppercase; color: #000; }
+        .phien-title { font-size: 12px; color: #666; margin-bottom: 2px; }
+        .phien-so { font-size: 16px; font-weight: bold; color: #222; }
+        .du-doan { font-size: 28px; font-weight: 900; text-transform: uppercase; color: #d35400; }
         
-        .status { font-size: 24px; }
+        .status { font-size: 26px; font-weight: bold; animation: pulse 0.5s infinite alternate; }
         .win { color: #27ae60; }
         .lose { color: #c0392b; }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body>
@@ -42,77 +48,62 @@
     <iframe id="bg-iframe" src="https://play.lc79.bet/"></iframe>
 
     <div id="floating-box">
-        <div id="content">Đang tải...</div>
+        <div id="content" style="text-align: center;">Đang quét...</div>
     </div>
 
     <script>
         const box = document.getElementById('floating-box');
         const content = document.getElementById('content');
-        
-        let lastPred = null;
-        let isShowingResult = false;
+        let lastCheckedPhien = null; 
+        let currentPrediction = null;
+        let isWaitingNext = false;
 
-        // Kéo thả (Mobile & PC)
+        // Kéo thả
         let isDrag = false, ox, oy;
-        const start = (e) => { isDrag = true; ox = (e.clientX || e.touches[0].clientX) - box.offsetLeft; oy = (e.clientY || e.touches[0].clientY) - box.offsetTop; };
+        const start = (e) => { isDrag = true; ox = (e.clientX || e.touches[0].clientX) - box.offsetLeft; oy = (e.clientY || e.touches[0].clientY) - box.offsetTop; box.style.opacity = "0.7"; };
         const move = (e) => { if(!isDrag) return; box.style.left = ((e.clientX || e.touches[0].clientX) - ox) + 'px'; box.style.top = ((e.clientY || e.touches[0].clientY) - oy) + 'px'; };
-        const end = () => isDrag = false;
+        const end = () => { isDrag = false; box.style.opacity = "1"; };
 
         box.addEventListener('mousedown', start); box.addEventListener('touchstart', start);
         document.addEventListener('mousemove', move); document.addEventListener('touchmove', move);
         document.addEventListener('mouseup', end); document.addEventListener('touchend', end);
 
-        async function update() {
-            if (isShowingResult) return;
+        async function fetchData() {
+            if (isWaitingNext) return;
+
             try {
-                // Gọi trực tiếp đến file api.php cùng thư mục
-                // Thêm tham số t để tránh cache trình duyệt
-                const res = await fetch('api.php?t=' + new Date().getTime());
+                const res = await fetch('api.php?update=' + Date.now());
                 const data = await res.json();
 
-                if(data.error) {
-                    console.error(data.error);
+                // 1. Kiểm tra kết quả của phiên vừa dự đoán
+                if (currentPrediction && data.phien === currentPrediction.phien_so) {
+                    isWaitingNext = true;
+                    const isWin = data.ket_qua.trim() === currentPrediction.result.trim();
+                    
+                    content.innerHTML = `<div class="status ${isWin?'win':'lose'}">${isWin?'THẮNG':'THUA'}</div>
+                                         <div style="font-size:10px; color: #666;">${data.ket_qua} (${data.tong})</div>`;
+                    
+                    currentPrediction = null;
+                    setTimeout(() => { isWaitingNext = false; }, 4000); 
                     return;
                 }
 
-                // Logic so sánh kết quả phiên trước
-                if (lastPred && data.phien === lastPred.phien_hien_tai) {
-                    isShowingResult = true;
-                    // Kiểm tra thắng thua dựa trên dữ liệu trả về
-                    const win = data.ket_qua === lastPred.du_doan;
-                    
-                    content.innerHTML = `<div class="status ${win?'win':'lose'}">${win?'THẮNG':'THUA'}</div>`;
-                    
-                    // Reset dự đoán cũ để chuẩn bị cho phiên mới
-                    lastPred = null;
-                    
-                    // Hiện kết quả 3 giây rồi quay lại trạng thái bình thường
-                    setTimeout(() => { 
-                        isShowingResult = false; 
-                        // Gọi update ngay lập tức để lấy phiên mới nhất
-                        update(); 
-                    }, 3000); 
-                    return;
+                // 2. Hiển thị dự đoán cho phiên tiếp theo
+                if (!isWaitingNext) {
+                    content.innerHTML = `
+                        <div class="phien-title">Phiên: <span class="phien-so">#${data.phien_hien_tai}</span></div>
+                        <div class="du-doan">${data.du_doan}</div>
+                    `;
+                    currentPrediction = { phien_so: data.phien_hien_tai, result: data.du_doan };
                 }
-
-                // Hiển thị nội dung dự đoán phiên mới
-                content.innerHTML = `
-                    <div class="phien-hien-tai">${data.phien_hien_tai}</div>
-                    <div class="du-doan">${data.du_doan}</div>
-                `;
-                
-                // Lưu lại phiên hiện tại để so sánh lần sau
-                lastPred = { phien_hien_tai: data.phien_hien_tai, du_doan: data.du_doan };
 
             } catch (e) {
-                console.log("Lỗi kết nối:", e);
-                content.innerHTML = '<div style="font-size:12px">Lỗi mạng</div>';
+                console.log("Lỗi tải dữ liệu");
             }
         }
 
-        // Cập nhật mỗi 3 giây
-        setInterval(update, 3000);
-        update();
+        setInterval(fetchData, 3000);
+        fetchData();
     </script>
 </body>
 </html>
