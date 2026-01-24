@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LC79 - MD5 PURE HTML</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        /* Game Background */
+        #game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
+
+        /* Snow Canvas */
+        #snow-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+
+        /* Glassmorphism Box */
+        #tool-box {
+            position: absolute; top: 100px; left: 20px;
+            width: 220px; padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px; z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center; color: white;
+            cursor: move; touch-action: none;
+        }
+
+        .title { font-size: 13px; font-weight: bold; color: #ffd700; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+
+        input {
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px; color: #fff; outline: none; box-sizing: border-box;
+        }
+
+        button {
+            width: 100%; padding: 12px;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: bold; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+        }
+
+        #result-area { margin-top: 15px; min-height: 70px; display: flex; flex-direction: column; justify-content: center; }
+        
+        .prediction { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; }
+        .tai { color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
+        .xiu { color: #3498db; text-shadow: 0 0 15px rgba(52, 152, 219, 0.5); }
+        .rate { font-size: 11px; color: #2ecc71; margin-top: 5px; font-weight: bold; }
+        
+        .loading:after { content: '.'; animation: dots 1s infinite; }
+        @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+    </style>
+</head>
+<body>
+
+    <iframe id="game-frame" src="https://play.lc79.bet/"></iframe>
+    <canvas id="snow-canvas"></canvas>
+
+    <div id="tool-box">
+        <div class="title">MD5 OFFLINE TOOL</div>
+        <input type="text" id="md5Input" placeholder="Dán mã MD5..." spellcheck="false">
+        <button onclick="handlePredict()">Phân tích mã</button>
+
+        <div id="result-area" id="display">
+            <div id="display-content" style="font-size: 10px; color: #ccc;">Chờ nhập mã...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. HIỆU ỨNG TUYẾT RƠI (CANVAS) ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let snows = [];
+
+        function initSnow() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            snows = [];
+            for(let i=0; i<80; i++) {
+                snows.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, s: Math.random()*1+0.5 });
+            }
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            snows.forEach(s => {
+                ctx.moveTo(s.x, s.y);
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                s.y += s.s;
+                if(s.y > canvas.height) s.y = -10;
+            });
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+        window.onresize = initSnow;
+        initSnow();
+        drawSnow();
+
+        // --- 2. KÉO THẢ (DRAG) ---
+        const box = document.getElementById('tool-box');
+        let isDragging = false, startX, startY;
+
+        const start = (e) => {
+            isDragging = true;
+            const t = e.touches ? e.touches[0] : e;
+            startX = t.clientX - box.offsetLeft;
+            startY = t.clientY - box.offsetTop;
+        };
+        const move = (e) => {
+            if(!isDragging) return;
+            const t = e.touches ? e.touches[0] : e;
+            box.style.left = (t.clientX - startX) + 'px';
+            box.style.top = (t.clientY - startY) + 'px';
+        };
+        box.onmousedown = box.ontouchstart = start;
+        document.onmousemove = document.ontouchmove = move;
+        document.onmouseup = document.ontouchend = () => isDragging = false;
+
+        // --- 3. THUẬT TOÁN DỰ ĐOÁN (JAVASCRIPT) ---
+        function handlePredict() {
+            const val = document.getElementById('md5Input').value.trim();
+            const display = document.getElementById('display-content');
+
+            if(val.length < 5) {
+                alert("Mã MD5 không hợp lệ!");
+                return;
+            }
+
+            display.innerHTML = '<span class="loading">Đang giải mã cầu</span>';
+
+            // Giả lập thời gian tính toán cho "nguy hiểm"
+            setTimeout(() => {
+                // Thuật toán: Lấy tổng mã ASCII của 3 ký tự cuối MD5
+                let last3 = val.slice(-3);
+                let score = 0;
+                for(let i=0; i<last3.length; i++) {
+                    score += last3.charCodeAt(i);
+                }
+
+                const result = (score % 2 === 0) ? "Tài" : "Xỉu";
+                const colorClass = (result === "Tài") ? "tai" : "xiu";
+                const rate = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+
+                display.innerHTML = `
+                    <p class="prediction ${colorClass}">${result}</p>
+                    <div class="rate">Tỷ lệ xác thực: ${rate}%</div>
+                `;
+            }, 800);
+        }
+    </script>
+</body>
+</html>
