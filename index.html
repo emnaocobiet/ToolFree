@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LC79 Minimal</title>
+    <title>LC79 Minimal Local</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
         #bg-iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
@@ -12,10 +12,10 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 140px; /* Nhỏ gọn hơn */
+            width: 140px;
             height: 90px;
-            background: #fff; /* Nền trắng tinh */
-            color: #000; /* Chữ đen */
+            background: #fff;
+            color: #000;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
@@ -29,12 +29,9 @@
             font-weight: bold;
         }
 
-        /* Dòng 1: Phiên hiện tại */
         .phien-hien-tai { font-size: 16px; margin-bottom: 5px; color: #333; }
-        /* Dòng 2: Dự đoán */
         .du-doan { font-size: 26px; text-transform: uppercase; color: #000; }
         
-        /* Trạng thái Thắng/Thua (1 dòng duy nhất) */
         .status { font-size: 24px; }
         .win { color: #27ae60; }
         .lose { color: #c0392b; }
@@ -51,12 +48,7 @@
     <script>
         const box = document.getElementById('floating-box');
         const content = document.getElementById('content');
-        const proxies = [
-            'https://api.allorigins.win/get?url=',
-            'https://api.codetabs.com/v1/proxy/?quest='
-        ];
         
-        let proxyIdx = 0;
         let lastPred = null;
         let isShowingResult = false;
 
@@ -73,33 +65,52 @@
         async function update() {
             if (isShowingResult) return;
             try {
-                const target = 'https://lc79md5.vercel.app/lc79/md5';
-                const res = await fetch(proxies[proxyIdx] + encodeURIComponent(target));
-                let data = await res.json();
-                if (proxyIdx === 0) data = JSON.parse(data.contents);
+                // Gọi trực tiếp đến file api.php cùng thư mục
+                // Thêm tham số t để tránh cache trình duyệt
+                const res = await fetch('api.php?t=' + new Date().getTime());
+                const data = await res.json();
+
+                if(data.error) {
+                    console.error(data.error);
+                    return;
+                }
 
                 // Logic so sánh kết quả phiên trước
                 if (lastPred && data.phien === lastPred.phien_hien_tai) {
                     isShowingResult = true;
+                    // Kiểm tra thắng thua dựa trên dữ liệu trả về
                     const win = data.ket_qua === lastPred.du_doan;
+                    
                     content.innerHTML = `<div class="status ${win?'win':'lose'}">${win?'THẮNG':'THUA'}</div>`;
+                    
+                    // Reset dự đoán cũ để chuẩn bị cho phiên mới
                     lastPred = null;
-                    setTimeout(() => { isShowingResult = false; }, 3000); // Hiện 3 giây rồi mất
+                    
+                    // Hiện kết quả 3 giây rồi quay lại trạng thái bình thường
+                    setTimeout(() => { 
+                        isShowingResult = false; 
+                        // Gọi update ngay lập tức để lấy phiên mới nhất
+                        update(); 
+                    }, 3000); 
                     return;
                 }
 
-                // Hiển thị nội dung chính
+                // Hiển thị nội dung dự đoán phiên mới
                 content.innerHTML = `
                     <div class="phien-hien-tai">${data.phien_hien_tai}</div>
                     <div class="du-doan">${data.du_doan}</div>
                 `;
                 
+                // Lưu lại phiên hiện tại để so sánh lần sau
                 lastPred = { phien_hien_tai: data.phien_hien_tai, du_doan: data.du_doan };
+
             } catch (e) {
-                proxyIdx = (proxyIdx + 1) % proxies.length;
+                console.log("Lỗi kết nối:", e);
+                content.innerHTML = '<div style="font-size:12px">Lỗi mạng</div>';
             }
         }
 
+        // Cập nhật mỗi 3 giây
         setInterval(update, 3000);
         update();
     </script>
