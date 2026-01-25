@@ -3,182 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP PREDICTOR MOBILE</title>
+    <title>HACKER DASHBOARD VIP</title>
     <style>
-        :root { --neon: #00f2ff; --tai: #ff4444; --xiu: #44aaff; }
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        :root { --neon-color: #00ff41; --gold: #ffcc00; --bg: rgba(0, 0, 0, 0.9); }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
         
+        /* Iframe & Tuyết */
         #main-iframe { position: absolute; width: 100%; height: 100%; border: none; z-index: 1; }
-        #snow-canvas { position: fixed; top: 0; pointer-events: none; z-index: 2; width: 100%; height: 100%; }
+        #snow-canvas { position: fixed; top: 0; pointer-events: none; z-index: 5; width: 100%; height: 100%; }
 
-        /* Nút mở lại tool khi bị đóng */
-        #open-btn {
-            position: fixed; bottom: 20px; left: 20px; z-index: 999;
-            background: var(--neon); border: none; border-radius: 50%;
-            width: 40px; height: 40px; font-weight: bold; display: none;
-            box-shadow: 0 0 15px var(--neon);
+        /* Icon mở tool khi bị ẩn */
+        #open-tool-btn {
+            position: fixed; top: 10px; right: 10px; z-index: 1000;
+            background: var(--bg); border: 2px solid var(--neon-color); color: var(--neon-color);
+            border-radius: 50%; width: 45px; height: 45px; font-weight: bold;
+            display: none; cursor: pointer; box-shadow: 0 0 10px var(--neon-color);
         }
 
-        /* Khung Tool Chính */
-        #tool-container {
-            position: absolute; top: 20%; left: 10%; width: 280px;
-            background: rgba(10, 10, 20, 0.9); border: 2px solid var(--neon);
-            border-radius: 25px; padding: 15px; z-index: 100;
-            box-shadow: 0 0 25px rgba(0, 242, 255, 0.4); color: #fff;
-            backdrop-filter: blur(10px); touch-action: none;
+        /* MOD MENU CONTAINER */
+        #mod-menu {
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+            width: 320px; background: var(--bg); border: 2px solid var(--neon-color);
+            border-radius: 15px; z-index: 100; box-shadow: 0 0 25px rgba(0, 255, 65, 0.5);
+            color: #fff; backdrop-filter: blur(15px); touch-action: none; overflow: hidden;
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .close-btn { background: none; border: none; color: #ff4444; font-size: 24px; cursor: pointer; padding: 0 10px; }
+        .menu-header {
+            background: var(--neon-color); color: #000; padding: 10px;
+            font-weight: 900; display: flex; justify-content: space-between; align-items: center;
+            cursor: move; text-transform: uppercase; letter-spacing: 1px;
+        }
 
-        .menu-screen, .action-screen { display: none; }
+        .screen { display: none; padding: 20px; text-align: center; }
         .active { display: block; }
 
-        .btn {
-            width: 100%; padding: 12px; margin: 8px 0; border-radius: 15px;
-            border: none; background: #222; color: #fff; font-weight: bold;
-            cursor: pointer; transition: 0.2s; border: 1px solid #444;
+        /* Buttons & Inputs */
+        .btn-option {
+            width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--neon-color);
+            background: transparent; color: var(--neon-color); font-weight: bold;
+            text-transform: uppercase; border-radius: 8px; cursor: pointer;
+            transition: 0.3s;
         }
-        .btn-main { background: linear-gradient(90deg, #00f2ff, #0066ff); border: none; }
+        .btn-option:hover { background: var(--neon-color); color: #000; }
+        .btn-back { font-size: 10px; color: #888; text-decoration: underline; cursor: pointer; margin-top: 10px; display: block; }
 
         input {
-            width: 90%; padding: 10px; border-radius: 10px; border: 1px solid var(--neon);
-            background: #000; color: var(--neon); text-align: center; margin-bottom: 10px;
+            width: 90%; padding: 12px; border-radius: 5px; border: 1px solid #444;
+            background: #111; color: var(--neon-color); text-align: center; margin-bottom: 15px;
         }
 
-        #result { font-size: 30px; font-weight: 900; margin: 15px 0; min-height: 40px; text-align: center; }
-        .scan-line {
-            width: 100%; height: 2px; background: var(--neon);
-            box-shadow: 0 0 10px var(--neon); position: absolute; left: 0;
-            display: none; animation: moveScan 2s infinite linear;
+        /* Thuật toán & Result */
+        #result-box {
+            font-size: 35px; font-weight: 900; margin-top: 20px; min-height: 50px;
+            text-shadow: 0 0 15px currentColor;
         }
-        @keyframes moveScan { from { top: 0; } to { top: 100%; } }
+        .scanning { font-size: 14px; color: var(--neon-color); animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Scan Line Effect */
+        .scanner-line {
+            width: 100%; height: 2px; background: var(--neon-color);
+            position: absolute; top: 0; display: none;
+            box-shadow: 0 0 20px var(--neon-color); z-index: 101;
+            animation: scanAnim 2s infinite linear;
+        }
+        @keyframes scanAnim { 0% { top: 0; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
 
 <canvas id="snow-canvas"></canvas>
 <iframe id="main-iframe" src="https://play.betvip.fit/"></iframe>
-<button id="open-btn" onclick="toggleTool(true)">+</button>
+<button id="open-tool-btn" onclick="toggleMenu(true)">ON</button>
 
-<div id="tool-container">
-    <div class="scan-line" id="scanner"></div>
-    <div class="header">
-        <span style="font-size: 12px; color: var(--neon);">SYSTEM HACK V2.5</span>
-        <button class="close-btn" onclick="toggleTool(false)">−</button>
+<div id="mod-menu">
+    <div class="scanner-line" id="line"></div>
+    <div class="menu-header">
+        <span>V.I.P HACKER PRO</span>
+        <span style="cursor:pointer" onclick="toggleMenu(false)">[—]</span>
     </div>
 
-    <div id="menu-screen" class="menu-screen active">
-        <h2 style="text-align: center; font-size: 18px;">CHỌN CHẾ ĐỘ</h2>
-        <button class="btn" onclick="showScreen('md5')">DỰ ĐOÁN MD5 (HEX)</button>
-        <button class="btn" onclick="showScreen('pattern')">SOI CẦU PATTERN</button>
+    <div id="screen-main" class="screen active">
+        <p style="color: #888; font-size: 12px;">SELECT HACK METHOD</p>
+        <button class="btn-option" onclick="go('md5')">Dự Đoán MD5 (Hex)</button>
+        <button class="btn-option" onclick="go('pattern')">Dự Đoán Pattern</button>
     </div>
 
-    <div id="md5-screen" class="action-screen">
-        <input type="text" id="md5-input" placeholder="Nhập mã MD5...">
-        <button class="btn btn-main" onclick="calcMD5()">QUÉT HEX & PHÂN TÍCH</button>
-        <button class="btn" onclick="showScreen('menu')" style="font-size: 10px;">QUAY LẠI</button>
+    <div id="screen-md5" class="screen">
+        <input type="text" id="inp-md5" placeholder="PASTE MD5 HERE">
+        <button class="btn-option" style="background: var(--neon-color); color:#000" onclick="hackMD5()">START INJECTION</button>
+        <span class="btn-back" onclick="go('main')">RETURN MENU</span>
     </div>
 
-    <div id="pattern-screen" class="action-screen">
-        <input type="text" id="pattern-input" placeholder="Ví dụ: T-X-T-T-X">
-        <button class="btn btn-main" onclick="calcPattern()">PHÂN TÍCH CẦU</button>
-        <button class="btn" onclick="showScreen('menu')" style="font-size: 10px;">QUAY LẠI</button>
+    <div id="screen-pattern" class="screen">
+        <p style="font-size: 10px;">NHẬP 5 PHIÊN (T hoặc X)</p>
+        <input type="text" id="inp-pattern" placeholder="Ví dụ: TXTXX">
+        <button class="btn-option" style="background: var(--neon-color); color:#000" onclick="hackPattern()">ANALYZE DATA</button>
+        <span class="btn-back" onclick="go('main')">RETURN MENU</span>
     </div>
 
-    <div id="result">---</div>
+    <div id="result-box"></div>
 </div>
 
 <script>
-    // --- DI CHUYỂN TRÊN MOBILE & PC ---
-    const tool = document.getElementById("tool-container");
-    let active = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+    // --- DI CHUYỂN TRÊN CẢM ỨNG (MOBILE) ---
+    const menu = document.getElementById("mod-menu");
+    let initialX, initialY, xOffset = 0, yOffset = 0, active = false;
 
-    tool.addEventListener("touchstart", dragStart, false);
-    document.addEventListener("touchend", dragEnd, false);
-    document.addEventListener("touchmove", drag, false);
-    tool.addEventListener("mousedown", dragStart, false);
-    document.addEventListener("mouseup", dragEnd, false);
-    document.addEventListener("mousemove", drag, false);
+    menu.addEventListener("touchstart", (e) => {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+        if (e.target.closest('.menu-header')) active = true;
+    }, {passive: false});
 
-    function dragStart(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-        initialX = (e.type === "touchstart" ? e.touches[0].clientX : e.clientX) - xOffset;
-        initialY = (e.type === "touchstart" ? e.touches[0].clientY : e.clientY) - yOffset;
-        active = true;
-    }
-    function dragEnd() { active = false; }
-    function drag(e) {
+    document.addEventListener("touchmove", (e) => {
         if (active) {
             e.preventDefault();
-            currentX = (e.type === "touchstart" ? e.touches[0].clientX : e.clientX) - initialX;
-            currentY = (e.type === "touchstart" ? e.touches[0].clientY : e.clientY) - initialY;
-            xOffset = currentX; yOffset = currentY;
-            tool.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+            xOffset = e.touches[0].clientX - initialX;
+            yOffset = e.touches[0].clientY - initialY;
+            menu.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
         }
+    }, {passive: false});
+
+    document.addEventListener("touchend", () => active = false);
+
+    // --- CHUYỂN SCREEN ---
+    function go(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-' + screenId).classList.add('active');
+        document.getElementById('result-box').innerHTML = "";
     }
 
-    // --- CHUYỂN MÀN HÌNH ---
-    function showScreen(screen) {
-        document.querySelectorAll('.menu-screen, .action-screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screen + '-screen').classList.add('active');
-        document.getElementById('result').innerHTML = "---";
+    function toggleMenu(show) {
+        menu.style.display = show ? 'block' : 'none';
+        document.getElementById('open-tool-btn').style.display = show ? 'none' : 'block';
     }
 
-    function toggleTool(show) {
-        tool.style.display = show ? 'block' : 'none';
-        document.getElementById('open-btn').style.display = show ? 'none' : 'block';
-    }
-
-    // --- THUẬT TOÁN ---
-    function runEffect(callback) {
-        const scan = document.getElementById('scanner');
-        const res = document.getElementById('result');
-        scan.style.display = 'block';
-        res.innerHTML = '<small style="font-size:12px">ANALYZING...</small>';
-        setTimeout(() => { scan.style.display = 'none'; callback(); }, 2000);
-    }
-
-    function calcMD5() {
-        const val = document.getElementById('md5-input').value;
+    // --- THUẬT TOÁN HEX MD5 XỊN ---
+    function hackMD5() {
+        let val = document.getElementById('inp-md5').value;
         if(!val) return;
-        runEffect(() => {
-            // Thuật toán Hex: Lấy 5 ký tự đầu, chuyển từ Hex sang Dec, chia dư cho 2
-            let hex = val.substring(0, 5);
-            let num = parseInt(hex, 16);
-            if (isNaN(num)) num = val.length; 
-            document.getElementById('result').innerHTML = (num % 2 === 0) ? '<span style="color:var(--xiu)">XỈU</span>' : '<span style="color:var(--tai)">TÀI</span>';
+        process(() => {
+            // Lấy 4 ký tự cuối, chuyển sang Hex -> Dec
+            let hexPart = val.slice(-4);
+            let dec = parseInt(hexPart, 16);
+            if(isNaN(dec)) dec = val.length;
+            
+            // Logic: Số lẻ ra Tài, Số chẵn ra Xỉu (Cực phổ biến trong thuật toán game)
+            displayResult(dec % 2 !== 0 ? 'TÀI' : 'XỈU');
         });
     }
 
-    function calcPattern() {
-        const val = document.getElementById('pattern-input').value.toUpperCase();
+    // --- THUẬT TOÁN PATTERN ---
+    function hackPattern() {
+        let val = document.getElementById('inp-pattern').value.toUpperCase();
         if(!val) return;
-        runEffect(() => {
-            // Thuật toán Pattern: Dựa vào ký tự cuối và độ dài chuỗi
+        process(() => {
+            // Dựa vào chuỗi để tính cầu nghiêng
+            let countT = (val.match(/T/g) || []).length;
             let last = val.slice(-1);
-            document.getElementById('result').innerHTML = (last === 'T') ? '<span style="color:var(--xiu)">XỈU (BẺ)</span>' : '<span style="color:var(--tai)">TÀI (BẺ)</span>';
+            // Nếu Tài nhiều hơn hoặc kết thúc là Xỉu thì dự đoán ngược lại
+            displayResult(countT >= 3 ? 'XỈU' : 'TÀI');
         });
+    }
+
+    function process(cb) {
+        const res = document.getElementById('result-box');
+        const line = document.getElementById('line');
+        line.style.display = 'block';
+        res.innerHTML = '<span class="scanning">BYPASSING...</span>';
+        setTimeout(() => { line.style.display = 'none'; cb(); }, 2500);
+    }
+
+    function displayResult(text) {
+        const color = text.includes('TÀI') ? '#ff4444' : '#44aaff';
+        document.getElementById('result-box').innerHTML = `<span style="color:${color}">${text}</span>`;
     }
 
     // --- TUYẾT RƠI ---
     const canvas = document.getElementById('snow-canvas');
     const ctx = canvas.getContext('2d');
     let flakes = [];
-    function initSnow() {
+    function init() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        for(let i=0; i<60; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, d: Math.random()+0.5});
+        for(let i=0; i<50; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.5});
     }
-    function drawSnow() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.fillStyle = "white"; ctx.beginPath();
+    function draw() {
+        ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = "#fff";
         flakes.forEach(f => {
-            ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2, true);
-            f.y += f.d; if(f.y > canvas.height) f.y = -10;
+            ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill();
+            f.y += f.s; if(f.y > canvas.height) f.y = -5;
         });
-        ctx.fill(); requestAnimationFrame(drawSnow);
+        requestAnimationFrame(draw);
     }
-    initSnow(); drawSnow();
+    init(); draw();
 </script>
 </body>
 </html>
