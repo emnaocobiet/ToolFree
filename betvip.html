@@ -3,171 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BETVIP TOOL</title>
+    <title>RGB HACKER MENU</title>
     <style>
-        :root { --main: #00ff41; --sub: #008f11; --danger: #ff4444; --blue: #44aaff; }
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: 'Consolas', monospace; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
         
-        /* Iframe & Background */
         #game-frame { position: absolute; width: 100%; height: 100%; border: none; z-index: 1; }
         #snow { position: fixed; top: 0; pointer-events: none; z-index: 5; width: 100%; height: 100%; }
 
-        /* Icon mở tool */
-        #btn-reopen {
-            position: fixed; top: 15px; left: 15px; z-index: 1000;
-            background: #000; border: 2px solid var(--main); color: var(--main);
-            border-radius: 10px; padding: 10px; font-weight: bold; display: none;
-            box-shadow: 0 0 15px var(--main); cursor: pointer;
+        /* Hiệu ứng cầu vồng chạy cho viền */
+        @keyframes rainbow {
+            0% { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+            20% { border-color: #ff8000; box-shadow: 0 0 15px #ff8000; }
+            40% { border-color: #ffff00; box-shadow: 0 0 15px #ffff00; }
+            60% { border-color: #00ff00; box-shadow: 0 0 15px #00ff00; }
+            80% { border-color: #00ffff; box-shadow: 0 0 15px #00ffff; }
+            100% { border-color: #ff00ff; box-shadow: 0 0 15px #ff00ff; }
         }
 
-        /* MOD MENU */
+        @keyframes rainbow-text {
+            0% { color: #ff0000; }
+            33% { color: #00ff00; }
+            66% { color: #00ffff; }
+            100% { color: #ff00ff; }
+        }
+
+        #btn-on {
+            position: fixed; top: 10px; right: 10px; z-index: 1000;
+            background: #000; border: 3px solid; animation: rainbow 2s linear infinite;
+            color: #fff; width: 50px; height: 50px; border-radius: 50%; display: none;
+        }
+
         #hacker-menu {
-            position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
-            width: 300px; background: rgba(0, 0, 0, 0.9); border: 2px solid var(--main);
-            border-radius: 15px; z-index: 100; box-shadow: 0 0 30px rgba(0, 255, 65, 0.4);
-            color: #fff; backdrop-filter: blur(10px); touch-action: none; overflow: hidden;
+            position: fixed; top: 100px; left: 20px; width: 280px;
+            background: rgba(0, 0, 0, 0.9); border: 3px solid;
+            animation: rainbow 3s linear infinite;
+            border-radius: 20px; z-index: 999; color: #fff; touch-action: none;
         }
 
         .m-header {
-            background: var(--main); color: #000; padding: 12px;
-            font-weight: 900; display: flex; justify-content: space-between; align-items: center;
-            cursor: move; font-size: 14px;
+            padding: 15px; text-align: center; font-weight: 900;
+            border-bottom: 1px solid #333; cursor: grab;
+            animation: rainbow-text 2s linear infinite;
         }
 
-        .screen { display: none; padding: 20px; text-align: center; }
+        .m-content { padding: 20px; text-align: center; }
+        .screen { display: none; }
         .active { display: block; }
 
-        .btn-ui {
-            width: 100%; padding: 15px; margin: 10px 0; border: 1px solid var(--main);
-            background: transparent; color: var(--main); font-weight: bold;
-            text-transform: uppercase; border-radius: 8px; cursor: pointer;
+        .btn-rgb {
+            width: 100%; padding: 12px; margin: 10px 0; background: #111;
+            border: 2px solid; animation: rainbow 3s linear infinite;
+            color: #fff; font-weight: bold; border-radius: 10px; cursor: pointer;
         }
-        .btn-ui:active { transform: scale(0.95); background: var(--main); color: #000; }
 
         input {
-            width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #333;
-            background: #111; color: var(--main); text-align: center; margin-bottom: 10px;
-            font-size: 16px; outline: none;
+            width: 85%; padding: 12px; border-radius: 10px; border: 1px solid #444;
+            background: #000; color: #fff; text-align: center; margin-bottom: 15px;
         }
 
-        #res-box { font-size: 38px; font-weight: 900; margin-top: 15px; min-height: 50px; }
+        #res { font-size: 40px; font-weight: 900; margin: 15px 0; text-shadow: 2px 2px #000; }
         
-        /* Hiệu ứng Scan */
-        .laser {
-            width: 100%; height: 3px; background: var(--main); position: absolute;
-            left: 0; display: none; box-shadow: 0 0 20px var(--main); z-index: 110;
-            animation: scanLine 2s infinite linear;
-        }
-        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
+        .close-x { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <canvas id="snow"></canvas>
 <iframe id="game-frame" src="https://play.betvip.fit/"></iframe>
-<button id="btn-reopen" onclick="showMenu(true)">OPEN MENU</button>
+<button id="btn-on" onclick="toggle(true)">ON</button>
 
 <div id="hacker-menu">
-    <div class="laser" id="laser"></div>
-    <div class="m-header" id="drag-handle">
-        <span>BETVIP HACK v3.0</span>
-        <span onclick="showMenu(false)" style="cursor:pointer; padding: 0 5px;">[ — ]</span>
-    </div>
+    <div class="close-x" onclick="toggle(false)">×</div>
+    <div class="m-header" id="drag-zone">B E T V I P - R G B</div>
 
-    <div id="sc-main" class="screen active">
-        <button class="btn-ui" onclick="nav('md5')">DỰ ĐOÁN MD5</button>
-        <button class="btn-ui" onclick="nav('pattern')">DỰ ĐOÁN PATTERN</button>
-    </div>
+    <div class="m-content">
+        <div id="sc-home" class="screen active">
+            <button class="btn-rgb" onclick="go('md5')">MODE MD5 HEX</button>
+            <button class="btn-rgb" onclick="go('pattern')">MODE PATTERN</button>
+        </div>
 
-    <div id="sc-md5" class="screen">
-        <input type="text" id="val-md5" placeholder="DÁN MÃ MD5...">
-        <button class="btn-ui" style="border-color: #fff; color: #fff;" onclick="runHack('md5')">QUÉT DỮ LIỆU</button>
-        <div onclick="nav('main')" style="font-size: 11px; color: #666; cursor: pointer;">QUAY LẠI</div>
-    </div>
+        <div id="sc-md5" class="screen">
+            <input type="text" id="in-md5" placeholder="DÁN MÃ MD5">
+            <button class="btn-rgb" onclick="run('md5')">START SCAN</button>
+            <div onclick="go('home')" style="font-size:10px; cursor:pointer; margin-top:5px;">BACK</div>
+        </div>
 
-    <div id="sc-pattern" class="screen">
-        <input type="text" id="val-pattern" placeholder="VÍ DỤ: TXTXT">
-        <button class="btn-ui" style="border-color: #fff; color: #fff;" onclick="runHack('pattern')">PHÂN TÍCH CẦU</button>
-        <div onclick="nav('main')" style="font-size: 11px; color: #666; cursor: pointer;">QUAY LẠI</div>
-    </div>
+        <div id="sc-pattern" class="screen">
+            <input type="text" id="in-pattern" placeholder="DÃY CẦU TXTXT">
+            <button class="btn-rgb" onclick="run('pattern')">CHECK PATTERN</button>
+            <div onclick="go('home')" style="font-size:10px; cursor:pointer; margin-top:5px;">BACK</div>
+        </div>
 
-    <div id="res-box"></div>
+        <div id="res">---</div>
+    </div>
 </div>
 
 <script>
-    // --- DI CHUYỂN TOOL (TOUCH & MOUSE) ---
-    const menu = document.getElementById("hacker-menu");
-    const handle = document.getElementById("drag-handle");
-    let x = 0, y = 0, isDown = false;
+    const menu = document.getElementById('hacker-menu');
+    const dragZone = document.getElementById('drag-zone');
+    let isDragging = false, startX, startY, initialLeft, initialTop;
 
-    handle.addEventListener('touchstart', (e) => { isDown = true; x = e.touches[0].clientX - menu.offsetLeft; y = e.touches[0].clientY - menu.offsetTop; }, {passive: false});
-    document.addEventListener('touchmove', (e) => {
-        if (isDown) {
-            menu.style.left = (e.touches[0].clientX - x + menu.offsetWidth/2) + 'px';
-            menu.style.top = (e.touches[0].clientY - y) + 'px';
-            menu.style.transform = 'translateX(-50%)';
-        }
-    }, {passive: false});
-    document.addEventListener('touchend', () => isDown = false);
+    // Fix di chuyển cho dth
+    const sDrag = (e) => {
+        isDragging = true;
+        const t = e.type === 'touchstart' ? e.touches[0] : e;
+        startX = t.clientX; startY = t.clientY;
+        initialLeft = menu.offsetLeft; initialTop = menu.offsetTop;
+    };
+    const mDrag = (e) => {
+        if (!isDragging) return;
+        const t = e.type === 'touchmove' ? e.touches[0] : e;
+        menu.style.left = (initialLeft + (t.clientX - startX)) + 'px';
+        menu.style.top = (initialTop + (t.clientY - startY)) + 'px';
+    };
+    dragZone.addEventListener('mousedown', sDrag);
+    dragZone.addEventListener('touchstart', sDrag, {passive:false});
+    window.addEventListener('mousemove', mDrag);
+    window.addEventListener('touchmove', mDrag, {passive:false});
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('touchend', () => isDragging = false);
 
-    // --- CHUYỂN MÀN HÌNH ---
-    function nav(id) {
+    function go(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('sc-' + id).classList.add('active');
-        document.getElementById('res-box').innerHTML = "";
     }
 
-    function showMenu(sw) {
+    function toggle(sw) {
         menu.style.display = sw ? 'block' : 'none';
-        document.getElementById('btn-reopen').style.display = sw ? 'none' : 'block';
+        document.getElementById('btn-on').style.display = sw ? 'none' : 'block';
     }
 
-    // --- THUẬT TOÁN XỊN ---
-    function runHack(type) {
-        const laser = document.getElementById('laser');
-        const res = document.getElementById('res-box');
-        laser.style.display = 'block';
-        res.innerHTML = '<span style="font-size:12px; color:var(--main)">DECRYPTING...</span>';
-
+    function run(type) {
+        const res = document.getElementById('res');
+        res.innerHTML = '<span style="font-size:15px; animation: rainbow-text 0.5s infinite">SCANNING...</span>';
+        
         setTimeout(() => {
-            laser.style.display = 'none';
-            if (type === 'md5') {
-                let s = document.getElementById('val-md5').value;
-                if(!s) return;
-                // Thuật toán Hex VIP: Lấy 6 ký tự cuối, tính tổng mã ASCII của từng ký tự
-                let hex = s.slice(-6);
-                let sum = 0;
-                for(let i=0; i<hex.length; i++) sum += hex.charCodeAt(i);
-                renderRes(sum % 2 !== 0 ? 'TÀI' : 'XỈU');
+            if(type === 'md5') {
+                let v = document.getElementById('in-md5').value;
+                if(!v) return;
+                // Thuật toán Hex mạnh
+                let hex = v.slice(-4);
+                let dec = parseInt(hex, 16);
+                res.innerHTML = (dec % 2 === 0) ? '<span style="color:#4da6ff">XỈU</span>' : '<span style="color:#ff4d4d">TÀI</span>';
             } else {
-                let p = document.getElementById('val-pattern').value.toUpperCase();
+                let p = document.getElementById('in-pattern').value.toUpperCase();
                 if(!p) return;
-                // Thuật toán Pattern: Nếu chuỗi kết thúc bằng T thì dự đoán X (đánh bẻ) và ngược lại
-                let last = p.slice(-1);
-                renderRes(last === 'T' ? 'XỈU' : 'TÀI');
+                res.innerHTML = p.endsWith('T') ? '<span style="color:#4da6ff">XỈU</span>' : '<span style="color:#ff4d4d">TÀI</span>';
             }
-        }, 2000);
+        }, 1500);
     }
 
-    function renderRes(t) {
-        let color = (t === 'TÀI') ? 'var(--danger)' : 'var(--blue)';
-        document.getElementById('res-box').innerHTML = `<span style="color:${color}">${t}</span>`;
-    }
-
-    // --- HIỆU ỨNG TUYẾT ---
+    // Tuyết rơi
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
-    let p = [];
-    function init() {
+    let flakes = [];
+    function initS() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        for(let i=0; i<70; i++) p.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*3+1, s:Math.random()*1+0.5});
+        for(let i=0; i<50; i++) flakes.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*3+1, s:Math.random()*1+0.5});
     }
-    function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "white";
-        p.forEach(i => { ctx.beginPath(); ctx.arc(i.x, i.y, i.r, 0, Math.PI*2); ctx.fill(); i.y += i.s; if(i.y > canvas.height) i.y = -5; });
-        requestAnimationFrame(draw);
+    function drawS() {
+        ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = "white";
+        flakes.forEach(f => {
+            ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill();
+            f.y += f.s; if(f.y > canvas.height) f.y = -5;
+        });
+        requestAnimationFrame(drawS);
     }
-    init(); draw();
+    initS(); drawS();
 </script>
 </body>
 </html>
