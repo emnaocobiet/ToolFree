@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetVip Dashboard - Dự Đoán Siêu Cấp</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Iframe full màn hình */
+        #main-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1;
+        }
+
+        /* Khung dự đoán bo góc, hiệu ứng sinh động */
+        #tool-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffcc00;
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h3 { margin: 0 0 15px 0; color: #ffcc00; text-transform: uppercase; font-size: 18px; }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 15px;
+            outline: none;
+            background: #333;
+            color: #fff;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ffcc00, #ff9900);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.05); }
+
+        #result {
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 35px;
+        }
+
+        .tai { color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d; }
+        .xiu { color: #4da6ff; text-shadow: 0 0 10px #4da6ff; }
+        
+        .loading {
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <iframe id="main-iframe" src="https://play.betvip.fit/"></iframe>
+
+    <div id="tool-container">
+        <h3>AI Predictor Pro</h3>
+        <input type="text" id="md5-input" placeholder="Nhập mã MD5 tại đây...">
+        <button onclick="predict()">Phân Tích Kết Quả</button>
+        
+        <div id="result">---</div>
+    </div>
+
+    <script>
+        function predict() {
+            const md5Value = document.getElementById('md5-input').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!md5Value) {
+                alert("Vui lòng nhập mã MD5 để AI phân tích!");
+                return;
+            }
+
+            // Hiệu ứng đang phân tích
+            resultDiv.innerHTML = '<span class="loading">Đang giải mã thuật toán...</span>';
+            
+            setTimeout(() => {
+                // Thuật toán giả lập dựa trên ký tự cuối của mã MD5
+                // Nếu ký tự cuối là số chẵn -> Xỉu, số lẻ/chữ -> Tài
+                const lastChar = md5Value.charAt(md5Value.length - 1).toLowerCase();
+                const isNumeric = !isNaN(lastChar);
+                
+                if (isNumeric && parseInt(lastChar) % 2 === 0) {
+                    resultDiv.innerHTML = '<span class="xiu">Dự đoán: XỈU</span>';
+                } else {
+                    resultDiv.innerHTML = '<span class="tai">Dự đoán: TÀI</span>';
+                }
+            }, 1500); // Đợi 1.5s cho giống thật
+        }
+    </script>
+</body>
+</html>
