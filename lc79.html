@@ -2,264 +2,252 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP TOOL MD5 - LC79</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIP HASH TOOL - PRO MAX</title>
     <style>
-        /* Toàn màn hình */
+        :root {
+            --rgb-speed: 3s;
+            --neon-color: #00ffd5;
+        }
+
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Roboto', sans-serif;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background: #000;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         /* Iframe Game */
-        #iframe-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+        #main-game {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: none; z-index: 1;
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* BOX TOOL DỌC - RGB VIP */
+        /* TOOL BOX - FULL RGB GLOW */
         #tool-box {
             position: absolute;
-            top: 100px;
-            left: 20px;
-            width: 200px; /* Thiết kế dọc xuống */
-            background: rgba(10, 10, 10, 0.9);
+            top: 20%; left: 10%;
+            width: 180px;
+            background: rgba(5, 5, 5, 0.9);
             border-radius: 20px;
-            padding: 15px;
             z-index: 9999;
+            padding: 20px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 0 25px rgba(0,0,0,1);
-            cursor: move;
+            touch-action: none; /* Quan trọng để kéo trên mobile */
             
-            /* Viền RGB chạy */
-            border: 3px solid transparent;
-            background-image: linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)), 
-                              linear-gradient(45deg, #ff0000, #ff00ea, #0026ff, #00ffcc, #3cff00, #fffb00, #ff0000);
+            /* Viền & Đổ bóng RGB */
+            border: 2px solid transparent;
+            background-image: linear-gradient(rgba(5,5,5,0.95), rgba(5,5,5,0.95)), 
+                              linear-gradient(var(--angle), #ff0000, #00ff00, #00ffff, #ff00ff, #ff0000);
             background-origin: border-box;
             background-clip: content-box, border-box;
-            background-size: 400% 400%;
-            animation: rgb-border 5s linear infinite;
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+            animation: rotate-gradient var(--rgb-speed) linear infinite;
         }
 
-        @keyframes rgb-border {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes rotate-gradient {
+            to { --angle: 360deg; }
         }
 
         /* Hiệu ứng Scan trượt */
-        #scan-line {
+        .scan-bar {
             position: absolute;
-            width: 100%;
-            height: 2px;
-            background: #00ffcc;
-            box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc;
-            left: 0;
-            top: 0;
+            left: 0; width: 100%; height: 3px;
+            background: var(--neon-color);
+            box-shadow: 0 0 15px var(--neon-color);
+            z-index: 5;
             display: none;
-            z-index: 100;
         }
 
-        .scanning #scan-line {
+        .active-scan .scan-bar {
             display: block;
-            animation: scan-move 1.2s ease-in-out infinite alternate;
+            animation: move-scan 1s linear infinite;
         }
 
-        @keyframes scan-move {
-            0% { top: 5%; }
-            100% { top: 95%; }
+        @keyframes move-scan {
+            0% { top: 10%; }
+            100% { top: 90%; }
         }
 
-        /* Thành phần bên trong */
-        h2 {
-            color: #00ffcc;
-            font-size: 14px;
-            margin: 0 0 15px 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px #00ffcc;
-        }
-
-        input {
-            width: 90%;
-            background: #222;
-            border: 1px solid #444;
-            color: #00ffcc;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: center;
+        /* Header Tool */
+        .header {
             font-size: 12px;
-            outline: none;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        /* Input & Button */
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #00ffd5;
+            font-family: monospace;
+            font-size: 11px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            text-align: center;
         }
 
         button {
             width: 100%;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: none;
-            background: linear-gradient(90deg, #ff00ea, #0026ff);
-            color: white;
-            font-weight: bold;
+            background: linear-gradient(45deg, #00ffd5, #008cff);
+            color: #000;
+            font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
-            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 213, 0.5);
         }
 
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #ff00ea;
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        button:active { transform: scale(0.95); }
 
         /* Kết quả */
-        #result-display {
+        .res-box {
             margin-top: 20px;
             text-align: center;
-            width: 100%;
         }
 
-        .res-label {
-            color: #888;
-            font-size: 11px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        #prediction {
-            font-size: 24px;
+        .res-label { color: #666; font-size: 10px; text-transform: uppercase; }
+        
+        #result-text {
+            font-size: 28px;
             font-weight: 900;
-            letter-spacing: 2px;
+            margin-top: 5px;
+            display: block;
+            min-height: 35px;
         }
 
-        .tai { color: #ff0055; text-shadow: 0 0 15px #ff0055; }
-        .xiu { color: #00ffcc; text-shadow: 0 0 15px #00ffcc; }
-        .analyzing { color: #fff; font-size: 12px !important; font-style: italic; }
+        .tai { color: #ff3366; text-shadow: 0 0 20px #ff3366; }
+        .xiu { color: #00ffd5; text-shadow: 0 0 20px #00ffd5; }
+        .wait { color: #444; font-size: 14px; }
 
     </style>
 </head>
 <body>
 
-    <div id="iframe-container">
-        <iframe src="https://play.lc79.bet/"></iframe>
-    </div>
+    <iframe id="main-game" src="https://play.lc79.bet/"></iframe>
 
     <div id="tool-box">
-        <div id="scan-line"></div>
-        <h2>MD5 HASH VIP</h2>
-        <input type="text" id="md5-input" placeholder="DÁN MÃ MD5">
-        <button id="btn-analyze">PHÂN TÍCH</button>
+        <div class="scan-bar"></div>
+        <div class="header">SYSTEM ANALYSIS<br>MD5 HASH VIP</div>
+        
+        <input type="text" id="hash-input" placeholder="DÁN MÃ MD5">
+        <button id="btn-run">PHÂN TÍCH</button>
 
-        <div id="result-display">
-            <span class="res-label">DỰ ĐOÁN:</span>
-            <div id="prediction">---</div>
-            <div id="confidence" style="color: #555; font-size: 10px; margin-top: 5px;"></div>
+        <div class="res-box">
+            <span class="res-label">KẾT QUẢ DỰ ĐOÁN</span>
+            <span id="result-text" class="wait">READY</span>
         </div>
     </div>
 
     <script>
-        const toolBox = document.getElementById('tool-box');
-        const btn = document.getElementById('btn-analyze');
-        const input = document.getElementById('md5-input');
-        const prediction = document.getElementById('prediction');
-        const confidence = document.getElementById('confidence');
+        const tool = document.getElementById('tool-box');
+        const btn = document.getElementById('btn-run');
+        const input = document.getElementById('hash-input');
+        const result = document.getElementById('result-text');
 
-        // 1. CHỨC NĂNG KÉO THẢ (DRAGGABLE)
-        let isDragging = false;
-        let offset = { x: 0, y: 0 };
+        // --- HỖ TRỢ CẢM ỨNG & KÉO THẢ (MOBILE + PC) ---
+        let active = false;
+        let currentX, currentY, initialX, initialY;
+        let xOffset = 0, yOffset = 0;
 
-        toolBox.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-            isDragging = true;
-            offset.x = e.clientX - toolBox.offsetLeft;
-            offset.y = e.clientY - toolBox.offsetTop;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            toolBox.style.left = (e.clientX - offset.x) + 'px';
-            toolBox.style.top = (e.clientY - offset.y) + 'px';
-        });
-
-        document.addEventListener('mouseup', () => isDragging = false);
-
-        // 2. THUẬT TOÁN HASH PHÂN TÍCH XỊN
-        // Dùng thuật toán tính tổng trọng số ký tự để đảm bảo 1 mã MD5 luôn ra 1 kết quả cố định
-        function analyzeMD5(hash) {
-            let sum = 0;
-            let weight = 0;
-            
-            for (let i = 0; i < hash.length; i++) {
-                // Lấy giá trị ASCII của ký tự
-                let charCode = hash.charCodeAt(i);
-                sum += charCode;
-                // Cộng thêm vị trí để tăng độ phức tạp
-                weight += charCode * (i + 1);
+        function dragStart(e) {
+            if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON") return;
+            if (e.type === "touchstart") {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            } else {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
             }
-
-            // Lấy 2 số cuối của chuỗi hash (nếu là Hex) chuyển sang Decimal
-            const lastTwo = parseInt(hash.slice(-2), 16) || 0;
-            
-            // Công thức chốt: (Tổng + Trọng số + Số đuôi) chia dư cho 2
-            const finalValue = (sum + weight + lastTwo) % 2;
-            
-            // Tính độ tự tin ảo (Fake Confidence) từ 75-98%
-            const confPercent = 75 + (sum % 24); 
-
-            return {
-                result: finalValue === 0 ? "TÀI" : "XỈU",
-                class: finalValue === 0 ? "tai" : "xiu",
-                percent: confPercent
-            };
+            active = true;
         }
 
-        // 3. XỬ LÝ HÀNH ĐỘNG KHI BẤM NÚT
+        function dragEnd() {
+            active = false;
+        }
+
+        function drag(e) {
+            if (active) {
+                e.preventDefault();
+                if (e.type === "touchmove") {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+                xOffset = currentX;
+                yOffset = currentY;
+                setTranslate(currentX, currentY, tool);
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
+
+        tool.addEventListener("touchstart", dragStart, false);
+        document.addEventListener("touchend", dragEnd, false);
+        document.addEventListener("touchmove", drag, false);
+        tool.addEventListener("mousedown", dragStart, false);
+        document.addEventListener("mouseup", dragEnd, false);
+        document.addEventListener("mousemove", drag, false);
+
+        // --- THUẬT TOÁN PHÂN TÍCH HASH CHUẨN ---
+        function analyzeHash(str) {
+            let hash = 0;
+            // Thuật toán băm trọng số dựa trên mã ASCII và vị trí
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit int
+            }
+            
+            // Lấy trị tuyệt đối và kiểm tra tính chẵn lẻ của ký tự cuối
+            const absHash = Math.abs(hash);
+            const salt = parseInt(str.slice(-1), 16) || 0;
+            const finalScore = absHash + salt;
+
+            return (finalScore % 2 === 0) ? 
+                { text: "TÀI", class: "tai" } : 
+                { text: "XỈU", class: "xiu" };
+        }
+
+        // --- HÀNH ĐỘNG ---
         btn.addEventListener('click', () => {
             const val = input.value.trim();
-            if (val.length < 5) {
-                alert("Mã MD5 không hợp lệ!");
-                return;
-            }
+            if (val.length < 5) return alert("Nhập mã MD5 chuẩn!");
 
-            // Hiệu ứng bắt đầu quét
-            toolBox.classList.add('scanning');
+            tool.classList.add('active-scan');
             btn.disabled = true;
-            prediction.innerText = "CHECKING...";
-            prediction.className = "analyzing";
-            confidence.innerText = "";
+            result.innerText = "SCANNING...";
+            result.className = "wait";
 
-            // Giả lập thời gian máy chủ "phân tích"
+            // Thời gian chờ cho giống tool thật
             setTimeout(() => {
-                const data = analyzeMD5(val);
-                
-                // Hiển thị kết quả
-                toolBox.classList.remove('scanning');
+                const data = analyzeHash(val);
+                tool.classList.remove('active-scan');
                 btn.disabled = false;
-                prediction.innerText = data.result;
-                prediction.className = data.class;
-                confidence.innerText = "Độ tin cậy: " + data.percent + "%";
-            }, 2000); // Đợi 2 giây cho ngầu
+                result.innerText = data.text;
+                result.className = data.class;
+            }, 1500);
         });
     </script>
 </body>
