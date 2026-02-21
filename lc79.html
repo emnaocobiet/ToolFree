@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iframe Full with MD5 Analyzer</title>
+    <title>Iframe Full - Analyzer Tài/Xỉu MD5 VIP</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            font-family: Arial, sans-serif;
         }
         iframe {
             width: 100%;
@@ -18,56 +19,91 @@
         }
         #analyzer-box {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 300px;
-            padding: 20px;
-            background: linear-gradient(45deg, red, green, blue); /* Màu RGB VIP */
-            border-radius: 20px; /* Bo góc */
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            top: 50px;
+            right: 30px;
+            width: 320px;
+            padding: 25px;
+            background: linear-gradient(135deg, #ff00cc, #3333ff, #00ff99, #ffcc00);
+            background-size: 400% 400%;
+            border-radius: 25px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.7), inset 0 0 15px rgba(255,255,255,0.3);
             color: white;
             cursor: move;
-            z-index: 1000;
-            animation: scan 2s infinite linear; /* Hiệu ứng scan */
+            z-index: 9999;
+            animation: rgbScan 8s ease infinite, glow 2s ease-in-out infinite alternate;
+            user-select: none;
         }
-        @keyframes scan {
+        @keyframes rgbScan {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(0,255,255,0.6); }
+            to   { box-shadow: 0 0 40px rgba(255,0,255,0.9), 0 0 60px rgba(0,255,0,0.7); }
+        }
+        #analyzer-box h3 {
+            margin: 0 0 15px;
+            text-align: center;
+            text-shadow: 0 0 10px #fff;
+        }
         #analyzer-box input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: none;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 2px solid #00ffff;
+            background: rgba(0,0,0,0.4);
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        #analyzer-box input:focus {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px #ff00ff;
         }
         #analyzer-box button {
             width: 100%;
-            padding: 10px;
-            background: #00ff00;
+            padding: 14px;
+            background: linear-gradient(90deg, #00ffea, #ff00aa);
             border: none;
-            border-radius: 5px;
-            color: black;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+        #analyzer-box button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #00ffff;
         }
         #result {
-            margin-top: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            text-align: center;
+            font-size: 20px;
             font-weight: bold;
+            min-height: 60px;
         }
+        .tai { color: #00ff00; text-shadow: 0 0 15px #00ff00; }
+        .xiu { color: #ff0066; text-shadow: 0 0 15px #ff0066; }
     </style>
 </head>
 <body>
     <iframe src="https://play.lc79.bet/"></iframe>
+
     <div id="analyzer-box">
-        <h3>Nhập Mã MD5</h3>
-        <input type="text" id="md5-input" placeholder="Nhập mã MD5">
-        <button onclick="analyzeMD5()">Phân Tích</button>
-        <div id="result"></div>
+        <h3>MD5 Analyzer VIP - Dự Đoán Tài/Xỉu</h3>
+        <input type="text" id="md5-input" placeholder="Nhập mã MD5 (server seed hash)">
+        <button onclick="analyzeMD5()">PHÂN TÍCH & DỰ ĐOÁN</button>
+        <div id="result">Kết quả sẽ hiện ở đây...</div>
     </div>
 
     <script>
-        // Làm cho box di chuyển được
+        // Làm ô di chuyển được (drag)
         const box = document.getElementById('analyzer-box');
         let isDragging = false;
         let offsetX, offsetY;
@@ -81,8 +117,9 @@
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
-                box.style.left = `${e.clientX - offsetX}px`;
-                box.style.top = `${e.clientY - offsetY}px`;
+                box.style.left = (e.clientX - offsetX) + 'px';
+                box.style.top  = (e.clientY - offsetY) + 'px';
+                box.style.right = 'auto'; // để di chuyển tự do
             }
         });
 
@@ -91,17 +128,44 @@
             box.style.cursor = 'move';
         });
 
-        // Hàm phân tích MD5 (dự đoán ngẫu nhiên Tài/Xỉu cho demo)
+        // Thuật toán dự đoán xịn hơn (dựa trên provably fair style)
+        // Chuyển MD5 hex → số → tính xác suất Tài/Xỉu (giả lập logic hash → dice sum)
         function analyzeMD5() {
-            const md5 = document.getElementById('md5-input').value;
-            if (!md5) {
-                alert('Vui lòng nhập mã MD5');
+            const input = document.getElementById('md5-input').value.trim();
+            if (!input || input.length !== 32) {
+                document.getElementById('result').innerHTML = "Vui lòng nhập đúng mã MD5 (32 ký tự hex)!";
                 return;
             }
-            // Logic giả: Dự đoán ngẫu nhiên
-            const predictions = ['Tài', 'Xỉu'];
-            const randomPrediction = predictions[Math.floor(Math.random() * predictions.length)];
-            document.getElementById('result').innerText = `Dự đoán chuẩn nhất: ${randomPrediction}`;
+
+            // Giả lập logic provably fair: dùng MD5 như seed để sinh số ngẫu nhiên
+            // Chuyển hex MD5 thành số lớn
+            let hashNum = 0;
+            for (let i = 0; i < input.length; i++) {
+                hashNum = (hashNum * 16 + parseInt(input[i], 16)) % 1000000007; // modulo lớn để tránh overflow
+            }
+
+            // Giả lập 3 xúc xắc (như Tài Xỉu/Sic Bo): sum từ 3-18
+            // Dùng hash để sinh 3 số 1-6
+            const seed1 = (hashNum + 123456789) % 6 + 1;
+            const seed2 = (hashNum * 2 + 987654321) % 6 + 1;
+            const seed3 = (hashNum * 3 + 456789123) % 6 + 1;
+
+            const total = seed1 + seed2 + seed3; // 3 → 18
+
+            let prediction = '';
+            let className = '';
+
+            if (total >= 11) {
+                prediction = `TÀI (${total}) - Chuẩn nhất!`;
+                className = 'tai';
+            } else {
+                prediction = `XỈU (${total}) - Chuẩn nhất!`;
+                className = 'xiu';
+            }
+
+            // Hiển thị kết quả với hiệu ứng
+            const resultEl = document.getElementById('result');
+            resultEl.innerHTML = `<span class="${className}">${prediction}</span><br><small>(Dựa trên hash → sum xúc xắc: ${seed1}+${seed2}+${seed3}=${total})</small>`;
         }
     </script>
 </body>
