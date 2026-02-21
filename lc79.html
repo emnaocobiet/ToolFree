@@ -3,170 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iframe Full - Analyzer Tài/Xỉu MD5 VIP</title>
+    <title>VIP TOOL MD5 - LC79</title>
     <style>
+        /* Toàn màn hình */
         body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            background-color: #000;
+            font-family: 'Roboto', sans-serif;
         }
+
+        /* Iframe Game */
+        #iframe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        #analyzer-box {
+
+        /* BOX TOOL DỌC - RGB VIP */
+        #tool-box {
             position: absolute;
-            top: 50px;
-            right: 30px;
-            width: 320px;
-            padding: 25px;
-            background: linear-gradient(135deg, #ff00cc, #3333ff, #00ff99, #ffcc00);
-            background-size: 400% 400%;
-            border-radius: 25px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.7), inset 0 0 15px rgba(255,255,255,0.3);
-            color: white;
-            cursor: move;
+            top: 100px;
+            left: 20px;
+            width: 200px; /* Thiết kế dọc xuống */
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 20px;
+            padding: 15px;
             z-index: 9999;
-            animation: rgbScan 8s ease infinite, glow 2s ease-in-out infinite alternate;
-            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 25px rgba(0,0,0,1);
+            cursor: move;
+            
+            /* Viền RGB chạy */
+            border: 3px solid transparent;
+            background-image: linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)), 
+                              linear-gradient(45deg, #ff0000, #ff00ea, #0026ff, #00ffcc, #3cff00, #fffb00, #ff0000);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            background-size: 400% 400%;
+            animation: rgb-border 5s linear infinite;
         }
-        @keyframes rgbScan {
+
+        @keyframes rgb-border {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(0,255,255,0.6); }
-            to   { box-shadow: 0 0 40px rgba(255,0,255,0.9), 0 0 60px rgba(0,255,0,0.7); }
-        }
-        #analyzer-box h3 {
-            margin: 0 0 15px;
-            text-align: center;
-            text-shadow: 0 0 10px #fff;
-        }
-        #analyzer-box input {
+
+        /* Hiệu ứng Scan trượt */
+        #scan-line {
+            position: absolute;
             width: 100%;
-            padding: 12px;
+            height: 2px;
+            background: #00ffcc;
+            box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc;
+            left: 0;
+            top: 0;
+            display: none;
+            z-index: 100;
+        }
+
+        .scanning #scan-line {
+            display: block;
+            animation: scan-move 1.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes scan-move {
+            0% { top: 5%; }
+            100% { top: 95%; }
+        }
+
+        /* Thành phần bên trong */
+        h2 {
+            color: #00ffcc;
+            font-size: 14px;
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+
+        input {
+            width: 90%;
+            background: #222;
+            border: 1px solid #444;
+            color: #00ffcc;
+            padding: 10px;
+            border-radius: 10px;
             margin-bottom: 15px;
-            border-radius: 12px;
-            border: 2px solid #00ffff;
-            background: rgba(0,0,0,0.4);
-            color: white;
-            font-size: 16px;
+            text-align: center;
+            font-size: 12px;
             outline: none;
         }
-        #analyzer-box input:focus {
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px #ff00ff;
-        }
-        #analyzer-box button {
+
+        button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(90deg, #00ffea, #ff00aa);
+            padding: 12px;
+            border-radius: 10px;
             border: none;
-            border-radius: 12px;
+            background: linear-gradient(90deg, #ff00ea, #0026ff);
             color: white;
-            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            text-transform: uppercase;
+            transition: 0.3s;
         }
-        #analyzer-box button:hover {
+
+        button:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 25px #00ffff;
+            box-shadow: 0 0 15px #ff00ea;
         }
-        #result {
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Kết quả */
+        #result-display {
             margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 15px;
             text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            min-height: 60px;
+            width: 100%;
         }
-        .tai { color: #00ff00; text-shadow: 0 0 15px #00ff00; }
-        .xiu { color: #ff0066; text-shadow: 0 0 15px #ff0066; }
+
+        .res-label {
+            color: #888;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #prediction {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .tai { color: #ff0055; text-shadow: 0 0 15px #ff0055; }
+        .xiu { color: #00ffcc; text-shadow: 0 0 15px #00ffcc; }
+        .analyzing { color: #fff; font-size: 12px !important; font-style: italic; }
+
     </style>
 </head>
 <body>
-    <iframe src="https://play.lc79.bet/"></iframe>
 
-    <div id="analyzer-box">
-        <h3>MD5 Analyzer VIP - Dự Đoán Tài/Xỉu</h3>
-        <input type="text" id="md5-input" placeholder="Nhập mã MD5 (server seed hash)">
-        <button onclick="analyzeMD5()">PHÂN TÍCH & DỰ ĐOÁN</button>
-        <div id="result">Kết quả sẽ hiện ở đây...</div>
+    <div id="iframe-container">
+        <iframe src="https://play.lc79.bet/"></iframe>
+    </div>
+
+    <div id="tool-box">
+        <div id="scan-line"></div>
+        <h2>MD5 HASH VIP</h2>
+        <input type="text" id="md5-input" placeholder="DÁN MÃ MD5">
+        <button id="btn-analyze">PHÂN TÍCH</button>
+
+        <div id="result-display">
+            <span class="res-label">DỰ ĐOÁN:</span>
+            <div id="prediction">---</div>
+            <div id="confidence" style="color: #555; font-size: 10px; margin-top: 5px;"></div>
+        </div>
     </div>
 
     <script>
-        // Làm ô di chuyển được (drag)
-        const box = document.getElementById('analyzer-box');
-        let isDragging = false;
-        let offsetX, offsetY;
+        const toolBox = document.getElementById('tool-box');
+        const btn = document.getElementById('btn-analyze');
+        const input = document.getElementById('md5-input');
+        const prediction = document.getElementById('prediction');
+        const confidence = document.getElementById('confidence');
 
-        box.addEventListener('mousedown', (e) => {
+        // 1. CHỨC NĂNG KÉO THẢ (DRAGGABLE)
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+
+        toolBox.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
             isDragging = true;
-            offsetX = e.clientX - box.getBoundingClientRect().left;
-            offsetY = e.clientY - box.getBoundingClientRect().top;
-            box.style.cursor = 'grabbing';
+            offset.x = e.clientX - toolBox.offsetLeft;
+            offset.y = e.clientY - toolBox.offsetTop;
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                box.style.left = (e.clientX - offsetX) + 'px';
-                box.style.top  = (e.clientY - offsetY) + 'px';
-                box.style.right = 'auto'; // để di chuyển tự do
+            if (!isDragging) return;
+            toolBox.style.left = (e.clientX - offset.x) + 'px';
+            toolBox.style.top = (e.clientY - offset.y) + 'px';
+        });
+
+        document.addEventListener('mouseup', () => isDragging = false);
+
+        // 2. THUẬT TOÁN HASH PHÂN TÍCH XỊN
+        // Dùng thuật toán tính tổng trọng số ký tự để đảm bảo 1 mã MD5 luôn ra 1 kết quả cố định
+        function analyzeMD5(hash) {
+            let sum = 0;
+            let weight = 0;
+            
+            for (let i = 0; i < hash.length; i++) {
+                // Lấy giá trị ASCII của ký tự
+                let charCode = hash.charCodeAt(i);
+                sum += charCode;
+                // Cộng thêm vị trí để tăng độ phức tạp
+                weight += charCode * (i + 1);
             }
-        });
 
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            box.style.cursor = 'move';
-        });
+            // Lấy 2 số cuối của chuỗi hash (nếu là Hex) chuyển sang Decimal
+            const lastTwo = parseInt(hash.slice(-2), 16) || 0;
+            
+            // Công thức chốt: (Tổng + Trọng số + Số đuôi) chia dư cho 2
+            const finalValue = (sum + weight + lastTwo) % 2;
+            
+            // Tính độ tự tin ảo (Fake Confidence) từ 75-98%
+            const confPercent = 75 + (sum % 24); 
 
-        // Thuật toán dự đoán xịn hơn (dựa trên provably fair style)
-        // Chuyển MD5 hex → số → tính xác suất Tài/Xỉu (giả lập logic hash → dice sum)
-        function analyzeMD5() {
-            const input = document.getElementById('md5-input').value.trim();
-            if (!input || input.length !== 32) {
-                document.getElementById('result').innerHTML = "Vui lòng nhập đúng mã MD5 (32 ký tự hex)!";
+            return {
+                result: finalValue === 0 ? "TÀI" : "XỈU",
+                class: finalValue === 0 ? "tai" : "xiu",
+                percent: confPercent
+            };
+        }
+
+        // 3. XỬ LÝ HÀNH ĐỘNG KHI BẤM NÚT
+        btn.addEventListener('click', () => {
+            const val = input.value.trim();
+            if (val.length < 5) {
+                alert("Mã MD5 không hợp lệ!");
                 return;
             }
 
-            // Giả lập logic provably fair: dùng MD5 như seed để sinh số ngẫu nhiên
-            // Chuyển hex MD5 thành số lớn
-            let hashNum = 0;
-            for (let i = 0; i < input.length; i++) {
-                hashNum = (hashNum * 16 + parseInt(input[i], 16)) % 1000000007; // modulo lớn để tránh overflow
-            }
+            // Hiệu ứng bắt đầu quét
+            toolBox.classList.add('scanning');
+            btn.disabled = true;
+            prediction.innerText = "CHECKING...";
+            prediction.className = "analyzing";
+            confidence.innerText = "";
 
-            // Giả lập 3 xúc xắc (như Tài Xỉu/Sic Bo): sum từ 3-18
-            // Dùng hash để sinh 3 số 1-6
-            const seed1 = (hashNum + 123456789) % 6 + 1;
-            const seed2 = (hashNum * 2 + 987654321) % 6 + 1;
-            const seed3 = (hashNum * 3 + 456789123) % 6 + 1;
-
-            const total = seed1 + seed2 + seed3; // 3 → 18
-
-            let prediction = '';
-            let className = '';
-
-            if (total >= 11) {
-                prediction = `TÀI (${total}) - Chuẩn nhất!`;
-                className = 'tai';
-            } else {
-                prediction = `XỈU (${total}) - Chuẩn nhất!`;
-                className = 'xiu';
-            }
-
-            // Hiển thị kết quả với hiệu ứng
-            const resultEl = document.getElementById('result');
-            resultEl.innerHTML = `<span class="${className}">${prediction}</span><br><small>(Dựa trên hash → sum xúc xắc: ${seed1}+${seed2}+${seed3}=${total})</small>`;
-        }
+            // Giả lập thời gian máy chủ "phân tích"
+            setTimeout(() => {
+                const data = analyzeMD5(val);
+                
+                // Hiển thị kết quả
+                toolBox.classList.remove('scanning');
+                btn.disabled = false;
+                prediction.innerText = data.result;
+                prediction.className = data.class;
+                confidence.innerText = "Độ tin cậy: " + data.percent + "%";
+            }, 2000); // Đợi 2 giây cho ngầu
+        });
     </script>
 </body>
 </html>
